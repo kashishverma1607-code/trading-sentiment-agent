@@ -1,0 +1,40 @@
+import pandas as pd
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from pathlib import Path
+
+INPUT_FILE = Path("data/raw/news/stock_news.csv")
+OUTPUT_DIR = Path("data/processed")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+df = pd.read_csv(INPUT_FILE)
+
+analyzer = SentimentIntensityAnalyzer()
+
+def analyze_sentiment(text):
+    scores = analyzer.polarity_scores(str(text))
+    compound = scores["compound"]
+
+    if compound >= 0.05:
+        label = "Positive"
+    elif compound <= -0.05:
+        label = "Negative"
+    else:
+        label = "Neutral"
+
+    return pd.Series([compound, label])
+
+df[["Sentiment_Score", "Sentiment"]] = df["Title"].apply(
+    analyze_sentiment
+)
+
+output_file = OUTPUT_DIR / "news_sentiment.csv"
+df.to_csv(output_file, index=False, encoding="utf-8-sig")
+
+print("\nSentiment analysis completed!")
+print("\nSentiment distribution:")
+print(df["Sentiment"].value_counts())
+
+print("\nCompany-wise sentiment:")
+print(df.groupby(["Stock", "Sentiment"]).size())
+
+print("\nSaved:", output_file)

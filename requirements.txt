@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+requests
+python-dotenv
+streamlit
+plotly
+jupyter
+
+yfinance
+
+apify-client
+python-dotenv
